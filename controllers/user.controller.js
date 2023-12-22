@@ -1,4 +1,5 @@
 const {User} = require('../models');
+const NotFoundError = require('../errors/NotFoundError');
 
 module.exports.createUser = async (req, res, next) => {
     try {
@@ -12,8 +13,16 @@ module.exports.createUser = async (req, res, next) => {
 
 module.exports.getOneUser = async (req, res, next) => {
     try {
-        const {userInstance} = req;
-        res.status(200).send(userInstance);
+        const {params: {userId}} = req;
+        const result = await User.findByPk(userId, {
+            attributes: {
+                exclude: 'password'
+            }
+        })
+        if(!result) {
+            throw new NotFoundError('User not found');
+        }
+        res.status(200).send(result);
     } catch (error) {
         next(error);
     }
@@ -21,7 +30,13 @@ module.exports.getOneUser = async (req, res, next) => {
 
 module.exports.getAllUsers = async (req, res, next) => {
     try {
-        const result = await User.findAll();
+        const {pagination} = req;
+        const result = await User.findAll({
+            ...pagination,
+            attributes: {
+                exclude: 'password'
+            }
+        });
         res.status(200).send(result);
     } catch (error) {
         next(error);

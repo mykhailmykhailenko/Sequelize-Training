@@ -22,8 +22,11 @@ module.exports.getOneTask = async (req, res, next) => {
 
 module.exports.getAllUserTask = async (req, res, next) => {
     try {
-        const {userInstance} = req;
-        const allTasks = await userInstance.getTasks();
+        const {userInstance, pagination} = req;
+        
+        const allTasks = await userInstance.getTasks({
+           ...pagination
+        });
         res.status(200).send(allTasks);
     } catch (error) {
         next(error);
