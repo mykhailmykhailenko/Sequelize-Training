@@ -1,4 +1,4 @@
-const {User} = require('../models');
+const {User, Group} = require('../models');
 const NotFoundError = require('../errors/NotFoundError');
 
 module.exports.createUser = async (req, res, next) => {
@@ -83,5 +83,22 @@ module.exports.deleteInstance = async(req, res, next) => {
         res.status(200).send(result);
     } catch (error) {
         next(error);
+    }
+}
+
+module.exports.getUserWithAllGroups = async (req, res, next) => {
+    try {
+        const {params: {userId}} = req;
+        const UserWithGroups = await User.findByPk(userId, {
+            include: {
+                model: Group,
+                attributes: {
+                    exclude: 'password'
+                }
+            }
+        })
+        res.status(200).send(UserWithGroups)
+    } catch (error) {
+        next(error)
     }
 }
